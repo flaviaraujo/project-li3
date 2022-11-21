@@ -2,7 +2,7 @@
 
 void query4(char *cidade,Catalog *c, int linha){
 
-	char comando[25];
+	char comando[100];
 	int maxlen = sizeof comando;
 
 
