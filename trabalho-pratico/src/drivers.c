@@ -46,14 +46,11 @@ int driverIDComparator(const void *a, const void *b){
 /*void *bSearchD(Array *a,const int key,int (*comparator)(const void *, const void *)){
 	//printf("chega aqui\n");
 	//return bsearch(key,a->data,a->n_elem,a->elem_size,comparator);
-
 	for(int i=0;i<sizeArray(a);i++){
 		Driver *d=getElement(a,i);
 		if(driverID(d)==key) return d;
 	}
-
 	return NULL;
-
 }*/
 
 char driverGender(Driver *d){
@@ -76,12 +73,15 @@ char *getClass(Driver *d){
 	return d->car_class;
 }
 
+Date *getBirthDateD(Driver *d){
+	return d->birth_date;
+}
+
 GHashTable *parse_drivers(char* path) {
 
 	time_t seconds = time(NULL);
-	struct tm* current_time = localtime(&seconds);
-
-
+	//struct tm* current_time = localtime(&seconds);
+	Date *today=newDate(9,10,2022);
 
 	char buffer[200];
 
@@ -103,24 +103,33 @@ GHashTable *parse_drivers(char* path) {
 
 		char *buffer_aux = buffer;
 
-		int id = atoi(strsep(&buffer_aux, ";")); 
+		char *identification = strsep(&buffer_aux, ";");
+
 		//printf("ola/n");
 		// strsep - vai dar o que ĺê até ao primeiro ;  
 		char *name = (strsep(&buffer_aux, ";"));
-		Date *birth_date = dateFromString(strsep(&buffer_aux, ";"));
+		char *data_nasc = strsep(&buffer_aux, ";");
+		//Date *birth_date = dateFromString(strdup(data_nasc));
 		char gender = *strsep(&buffer_aux, ";");
 		char *car_class = (strsep(&buffer_aux, ";"));
 		strsep(&buffer_aux, ";");
 		strsep(&buffer_aux, ";");
-		Date *account_creation = dateFromString(strsep(&buffer_aux, ";"));
+		char *data_cria = strsep(&buffer_aux, ";");
+		//Date *account_creation = dateFromString();
 		char *account_status = (strsep(&buffer_aux, ";"));
+		//int anos_driver=(current_time->tm_year + 1900)-(getYear(account_creation));
 
-		int anos_driver=(current_time->tm_year + 1900)-(getYear(account_creation));
-		
+		if (valida_intpos(identification)==0 && valida_restante(name)==0 && valida_data(strdup(data_nasc))==0 && valida_genero(gender)==0 && valida_classe(car_class)==0 && valida_data(strdup(data_cria))==0 && valida_status(account_status)==0) {
 
-		Driver* u = newDriver(id,name,birth_date,gender,car_class,account_creation,account_status,anos_driver);
+			int id = atoi(identification);
+			Date *birth_date = dateFromString(strdup(data_nasc));
+			Date *account_creation = dateFromString(strdup(data_cria));
+			int anos_driver=findOldest(account_creation,today);
+			Driver* u = newDriver(id,name,birth_date,gender,car_class,account_creation,account_status,anos_driver);
+			g_hash_table_insert(hash, &(u->id), u);
+		}
 
-		g_hash_table_insert(hash, &(u->id), u);
+
 		/*int x=addToArray(a,u);
 		if(x==0){
 			printf("ERRO");
