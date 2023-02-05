@@ -30,7 +30,6 @@ int pushData(Buffer *buffer, char *answer){
 		writeData(buffer);
 	}
 	buffer->consumed += snprintf(buffer->data + buffer->consumed, buffer->size - buffer->consumed, "%s", answer);
-	buffer->consumed += tam_answer;
 	return tam_answer;
 }
 
@@ -46,4 +45,8 @@ void freeBuffer(Buffer *buffer) {
 	free(buffer->data);
 	fclose(buffer->file);
 	free(buffer);
+}
+
+void printBuffer(Buffer *buffer){
+    printf("%s", buffer->data);
 }
