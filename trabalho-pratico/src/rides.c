@@ -72,6 +72,14 @@ char *getCidade(Ride *r){
 	return r->city;
 }
 
+int getScoreDriver(Ride *r){
+	return r->score_driver;
+}
+
+int getScoreUser(Ride *r){
+	return r->score_user;
+}
+
 
 GHashTable *parse_rides(char *path) {
 
@@ -93,22 +101,32 @@ GHashTable *parse_rides(char *path) {
 
 		char *buffer_aux = buffer;
 
-		int id = atoi(strsep(&buffer_aux, ";")); 
+		char *identification = strsep(&buffer_aux, ";");
 		//printf("ola/n");
-		Date *date = dateFromString(strsep(&buffer_aux, ";"));
-		int driver = atoi(strsep(&buffer_aux, ";")); 
+		char *data = strsep(&buffer_aux, ";");
+		char *condutor = strsep(&buffer_aux, ";");
 		char *user = (strsep(&buffer_aux, ";"));
 		char *city = (strsep(&buffer_aux, ";"));
-		int distance = atoi(strsep(&buffer_aux, ";"));
-		int score_user = atoi(strsep(&buffer_aux, ";")); 
-		int score_driver = atoi(strsep(&buffer_aux, ";")); 
-		float tip = atof(strsep(&buffer_aux, ";")); 
+		char *distancia = strsep(&buffer_aux, ";");
+		char *aval_user =strsep(&buffer_aux, ";");
+		char *aval_driver = strsep(&buffer_aux, ";");
+		char *gorjeta = strsep(&buffer_aux, ";"); 
 		strsep(&buffer_aux, ";");
 	
+		if(valida_intpos(identification)==0 && valida_data(strdup(data))==0 && valida_intpos(condutor)==0 && valida_restante(user)==0 && valida_restante(city)==0 && valida_intpos(strdup(distancia))==0 &&
+			valida_intpos(strdup(aval_user))==0 && valida_intpos(strdup(aval_driver))==0 && valida_tip(strdup(gorjeta))==0) {
 
-		Ride* u = newRide(id,date,driver,user,city,distance,score_user, score_driver,tip);
+			int id = atoi(identification);
+			int driver = atoi(condutor);
+			int distance = atoi(distancia);
+			int score_user = atoi(aval_user); 
+			int score_driver = atoi(aval_driver); 
+			Date *date = dateFromString(strdup(data));
+			float tip = atof(gorjeta);
+			Ride* u = newRide(id,date,driver,user,city,distance,score_user, score_driver,tip);
+			g_hash_table_insert(rides, &(u->date), u);
+		}
 
-		g_hash_table_insert(rides, &(u->id), u);
 
 		//int x=addToArray(a,u);
 		//if(x==0){
