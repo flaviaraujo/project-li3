@@ -39,7 +39,7 @@ int userComparator(const void *a, const void *b){ // const pointer para garantir
 }
 
 int userNameComparator(const void *a, const void *b){
-	char *s=a;
+	const char *s=a;
 	User *u2= ((User *)b);
 
 	return strcmp(s, u2->username);
@@ -53,9 +53,7 @@ int userNameComparator(const void *a, const void *b){
 		User *u=getElement(a,i);
 		if(nameUser(u)==key) return u;
 	}
-
 	return NULL;
-
 }*/
 
 char userGender(User *u){
@@ -74,10 +72,16 @@ char *userRealName(User *u){
 	return strdup(u->name);
 }
 
+Date *getBirthDate(User *u){
+	return u->birth_date;
+}
+
 GHashTable *parse_users(char *path) {
 
-	time_t seconds = time(NULL);
-	struct tm* current_time = localtime(&seconds);
+	//time_t seconds = time(NULL);
+	//struct tm* current_time = localtime(&seconds);
+
+	Date *today=newDate(9,10,2022);
 
 	char buffer[200];
 	char directory[100];
@@ -100,17 +104,22 @@ GHashTable *parse_users(char *path) {
 		char *username = (strsep(&buffer_aux, ";")); // strsep - vai dar o que ĺê até ao primeiro ;  
 		char *name = (strsep(&buffer_aux, ";"));
 		char gender = *strsep(&buffer_aux, ";");
-		Date *birth_date = dateFromString(strsep(&buffer_aux, ";"));
-		Date *account_creation = dateFromString(strsep(&buffer_aux, ";"));
+		char *data_nasci = strsep(&buffer_aux, ";");
+		char *data_criac = strsep(&buffer_aux, ";");
 		strsep(&buffer_aux,";"); //para ignorar pay_method
 		char *account_status = (strsep(&buffer_aux, ";"));
 
-		int anos_user=(current_time->tm_year + 1900)-(getYear(account_creation));
 		
+		
+		if(valida_restante(username)==0 && valida_restante(name)==0 && valida_genero(gender)==0 && valida_data(strdup(data_nasci))==0 && valida_data(strdup(data_criac))==0 && valida_status(account_status)==0) {
 
-		User* u = newUser(username,name,gender,birth_date,account_creation,account_status,anos_user);
+			Date *birth_date = dateFromString(strdup(data_nasci));
+			Date *account_creation = dateFromString(strdup(data_criac));
+			int anos_user=findOldest(account_creation,today);
+			User* u = newUser(username,name,gender,birth_date,account_creation,account_status,anos_user);
+			g_hash_table_insert(hash, (u->username), u);
 
-		g_hash_table_insert(hash, (u->username), u);
+		}
 /*
 		int x=addToArray(a,u);
 		if(x==0){
